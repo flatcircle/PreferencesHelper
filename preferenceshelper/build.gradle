@@ -33,7 +33,7 @@ publish {
     publishVersion = '0.0.2'
     bintrayUser = 'chesterflatcircle'
     bintrayKey = System.getenv("BINTRAY_KEY")
-    desc = 'A list of small kotlin extension functions, utility functions and delegates for Views'
+    desc = 'Utility functions for assisting access to SharedPreferences and KeyStore'
     website = 'https://github.com/flatcircle/preferenceshelper'
 }
 
