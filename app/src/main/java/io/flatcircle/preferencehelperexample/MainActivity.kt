@@ -77,7 +77,8 @@ class MainActivity : AppCompatActivity() {
         val stringDecrypted = KeyStoreHelper.decryptString(this, stringEncrypted)
         val matchEncryption = stringUnencrypted == stringDecrypted
 
-        val matchAll = matchString && matchEncryptedStorage && matchInt && matchLong && matchBoolean && matchCustom && matchCustomier && matchEncryption
+        val matchAll = matchString && matchEncryptedStorage && matchInt && matchLong &&
+            matchBoolean && matchCustom && matchCustomier && matchEncryption
 
         textView.text = "All classes have been stored and obtained successfully? \n $matchAll"
 

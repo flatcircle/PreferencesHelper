@@ -4,16 +4,17 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
+import kotlin.reflect.KClass
 
 object PreferencesHelper {
 
-    private val customAdapters: MutableList<Pair<Class<*>, Any>> = mutableListOf()
+    private val customAdapters: MutableList<Pair<KClass<out Any>, Any>> = mutableListOf()
 
-    inline fun <reified T> addCustomAdapter(adapter: Any) {
-        addCustomAdapter(adapter, T::class.java)
+    inline fun <reified T: Any> addCustomAdapter(adapter: Any) {
+        addCustomAdapter(adapter, T::class)
     }
     @PublishedApi
-    internal fun <T> addCustomAdapter(adapter: Any, clazz: Class<T>) {
+    internal fun <T: Any> addCustomAdapter(adapter: Any, clazz: KClass<T>) {
         val nuAdapterPair = Pair(clazz, adapter)
         val indexOfExistingAdapter = customAdapters.indexOfFirst { it.first == clazz }
         if (indexOfExistingAdapter < 0) {
@@ -23,39 +24,44 @@ object PreferencesHelper {
         }
     }
 
-    inline fun <reified T> get(context: Context, key: String, default: T? = null): T? {
-        return get(context, key, default, T::class.java)
+    inline fun <reified T: Any> get(context: Context, key: String, default: T? = null): T {
+        return get(context, key, default, T::class)
+    }
+
+    inline fun <reified T: Any> getSafely(context: Context, key: String, default: T): T {
+        return get(context, key, default, T::class)
     }
 
     @Suppress("UNCHECKED_CAST")
     @PublishedApi
-    internal fun <T> get(context: Context, key: String, default: T?, clazz: Class<T>): T? {
+    internal fun <T: Any> get(context: Context, key: String, default: T?, clazz: KClass<T>): T {
 
         return when (clazz) {
             Long::class -> getLong(context, key, default as Long? ?: 0L) as T
             Int::class -> getInt(context, key, default as Int? ?: 0) as T
             String::class -> getString(context, key, default as String? ?: "") as T
             Boolean::class -> getBoolean(context, key, false) as T
-            else -> serializeFromString(getString(context, key, ""), clazz) ?: default
+            else -> serializeFromString(getString(context, key, ""), clazz, default)
         }
     }
 
     /**
      * Sets the given key value pair in Preferences. Uses apply, so returns before finishing.
      */
-    inline fun <reified T> set(context: Context, key: String, value: T) {
-        set(context, key, value, T::class.java).apply()
+    inline fun <reified T: Any> set(context: Context, key: String, value: T) {
+        set(context, key, value, T::class).apply()
     }
 
     /**
      * Sets the given key-value pair in Preferences. Uses commit, so only returns when finishing.
      */
-    inline fun <reified T> setSync(context: Context, key: String, value: T) {
-        set(context, key, value, T::class.java).commit()
+    inline fun <reified T: Any> setSync(context: Context, key: String, value: T) {
+        set(context, key, value, T::class).commit()
     }
 
     @PublishedApi
-    internal fun <T> set(context: Context, key: String, value: T, clazz: Class<T>): SharedPreferences.Editor {
+    internal fun <T: Any> set(context: Context, key: String, value: T, clazz: KClass<T>): SharedPreferences.Editor {
+
         return when (clazz) {
             Long::class -> setLong(context, key, value as Long)
             Int::class -> setInt(context, key, value as Int)
@@ -66,27 +72,27 @@ object PreferencesHelper {
     }
 
     @PublishedApi
-    internal fun <T> serializeIntoString(input: T, clazz: Class<T>): String {
+    internal fun <T: Any> serializeIntoString(input: T, clazz: KClass<T>): String {
         val moshiBuilder = Moshi.Builder()
         val indexOfAdapter = customAdapters.indexOfFirst { it.first == clazz }
         if (indexOfAdapter >= 0) {
             moshiBuilder.add(customAdapters[indexOfAdapter].second)
         }
         val moshi = moshiBuilder.build()
-        val jsonAdapter: JsonAdapter<T> = moshi.adapter(clazz)
+        val jsonAdapter: JsonAdapter<T> = moshi.adapter(clazz.java)
         return jsonAdapter.toJson(input)
     }
 
     @PublishedApi
-    internal fun <T> serializeFromString(input: String, clazz: Class<T>): T? {
+    internal fun <T: Any> serializeFromString(input: String, clazz: KClass<T>, default: T?): T {
         val moshiBuilder = Moshi.Builder()
         val indexOfAdapter = customAdapters.indexOfFirst { it.first == clazz }
         if (indexOfAdapter >= 0) {
             moshiBuilder.add(customAdapters[indexOfAdapter].second)
         }
         val moshi = moshiBuilder.build()
-        val jsonAdapter: JsonAdapter<T> = moshi.adapter(clazz)
-        return jsonAdapter.fromJson(input)
+        val jsonAdapter: JsonAdapter<T> = moshi.adapter(clazz.java)
+        return jsonAdapter.fromJson(input) ?: default ?: clazz.objectInstance!!
     }
 
     fun setAndEncrypt(context: Context, key: String, value: String) {
@@ -94,10 +100,8 @@ object PreferencesHelper {
         set(context, key, encryptedString)
     }
 
-    fun getEncrypted(context: Context, key: String): String? {
+    fun getEncrypted(context: Context, key: String): String {
         val encryptedString = get<String>(context, key)
-        if (encryptedString == null)
-            return null
         return KeyStoreHelper.decryptString(context, encryptedString)
     }
 
