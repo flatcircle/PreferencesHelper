@@ -3,6 +3,8 @@ Functions to help with checking your app's online status
 
 [![CircleCI](https://circleci.com/gh/flatcircle/PreferencesHelper.svg?style=svg)](https://circleci.com/gh/flatcircle/PreferencesHelper) [ ![Download](https://api.bintray.com/packages/flatcircle/PreferencesHelper/preferenceshelper/images/download.svg) ](https://bintray.com/flatcircle/PreferencesHelper/preferenceshelper/_latestVersion)
 
+This is a Kotlin-only library which relies heavily on generics and type inference to make writing to and reading from Android SharedPreferences as easy as possible.
+
 Installation
 --------
 
@@ -21,6 +23,7 @@ You can set and get any primitive or basic custom class into your sharedPreferen
 | setSync(context, key, value) | Same as setSync, but uses preferencesEditor.commit() to keep the writing operation onto the same thread. | [Example](https://github.com/flatcircle/PreferencesHelper/blob/master/app/src/main/java/io/flatcircle/preferencehelperexample/MainActivity.kt#L24)  |
 | get<Any?>(context, key, defaultValue?)  | Returns any value you've saved, with optional DefaultValue. | [Example](https://github.com/flatcircle/PreferencesHelper/blob/master/app/src/main/java/io/flatcircle/preferencehelperexample/MainActivity.kt#L26)  |
 | getSafely<Any?>(context, key, defaultValue)  | Returns any value you've saved, with mandatory DefaultValue for null-safety. | [Example](https://github.com/flatcircle/PreferencesHelper/blob/master/app/src/main/java/io/flatcircle/preferencehelperexample/MainActivity.kt#L26)  |
+| contains(context, key) | determines whether a value has been saved to sharedPreferences | [Example](https://github.com/flatcircle/PreferencesHelper/blob/master/app/src/main/java/io/flatcircle/preferencehelperexample/MainActivity.kt#L32)  |
 | setAndEncrypt(context, key, value) | Saves a given string as an encrypted string using the Android KeyStore to perform the encryption. Requires you to set a KeyStore Alias as below | [Example](https://github.com/flatcircle/PreferencesHelper/blob/master/app/src/main/java/io/flatcircle/preferencehelperexample/MainActivity.kt#L32)  |
 | getEncrypted(context, key) | Returns a decrypted string which was saved as an encrypted string. | [Example](https://github.com/flatcircle/PreferencesHelper/blob/master/app/src/main/java/io/flatcircle/preferencehelperexample/MainActivity.kt#L32)  |
 | addCustomAdapter<Class>(adapter) | Adds a [custom moshi adapter](https://github.com/square/moshi#custom-type-adapters) for a given class | [Example](https://github.com/flatcircle/PreferencesHelper/blob/master/app/src/main/java/io/flatcircle/preferencehelperexample/MainActivity.kt#L72)  |

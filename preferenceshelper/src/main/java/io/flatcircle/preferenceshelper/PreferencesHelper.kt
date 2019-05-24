@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package io.flatcircle.preferenceshelper
 
 import android.content.Context
@@ -10,6 +12,9 @@ object PreferencesHelper {
 
     private val customAdapters: MutableList<Pair<KClass<out Any>, Any>> = mutableListOf()
 
+    /**
+     * This function adds a custom adapter for a given class. Adapter is applied to the Moshi serializer.
+     */
     inline fun <reified T: Any> addCustomAdapter(adapter: Any) {
         addCustomAdapter(adapter, T::class)
     }
@@ -24,10 +29,21 @@ object PreferencesHelper {
         }
     }
 
+    /**
+     * Get a given object from sharedpreferences with the given key.
+     *
+     * @param context any context
+     * @param key SharedPreferences String Key
+     * @param default is optional, unless you are getting a custom object
+     */
+    @Throws (IllegalArgumentException::class)
     inline fun <reified T: Any> get(context: Context, key: String, default: T? = null): T {
         return get(context, key, default, T::class)
     }
 
+    /**
+     * Same as get, but enforces null safety on custom objects via the default parameter
+     */
     inline fun <reified T: Any> getSafely(context: Context, key: String, default: T): T {
         return get(context, key, default, T::class)
     }
@@ -41,7 +57,10 @@ object PreferencesHelper {
             Int::class -> getInt(context, key, default as Int? ?: 0) as T
             String::class -> getString(context, key, default as String? ?: "") as T
             Boolean::class -> getBoolean(context, key, false) as T
-            else -> serializeFromString(getString(context, key, ""), clazz, default)
+            else -> {
+                if (default == null) throw IllegalArgumentException("Custom objects require a default parameter to be passed")
+                serializeFromString(getString(context, key, ""), clazz, default)
+            }
         }
     }
 
@@ -71,6 +90,31 @@ object PreferencesHelper {
         }
     }
 
+    /**
+     * Encrypts a given string value using the KeyStoreHelper, then saves the result in
+     * SharedPreferences.
+     */
+    fun setAndEncrypt(context: Context, key: String, value: String) {
+        val encryptedString = KeyStoreHelper.encryptString(context, value)
+        set(context, key, encryptedString)
+    }
+
+    /**
+     * Gets a saved encrypted string from SharedPreferences, decrypts the string using
+     * KeyStoreHelper, and returns the decrypted string.
+     */
+    fun getEncrypted(context: Context, key: String): String {
+        val encryptedString = get<String>(context, key)
+        return KeyStoreHelper.decryptString(context, encryptedString)
+    }
+
+    /**
+     * Takes a given class and serializes it into a JSON String using Moshi. May require setting a
+     * custom adapter via addCustomAdapter
+     */
+    inline fun <reified T: Any> serializeIntoString(input: T): String {
+        return serializeIntoString(input, T::class)
+    }
     @PublishedApi
     internal fun <T: Any> serializeIntoString(input: T, clazz: KClass<T>): String {
         val moshiBuilder = Moshi.Builder()
@@ -83,8 +127,19 @@ object PreferencesHelper {
         return jsonAdapter.toJson(input)
     }
 
+    /**
+     * Takes a given Json String and serializes it into the required object.
+     *
+     * @param default is required in case of invalid string or serialization errors
+     */
+    inline fun <reified T: Any> serializeFromString(input: String, default: T): T {
+        return serializeFromString(input, T::class, default)
+    }
     @PublishedApi
-    internal fun <T: Any> serializeFromString(input: String, clazz: KClass<T>, default: T?): T {
+    internal fun <T: Any> serializeFromString(input: String, clazz: KClass<T>, default: T): T {
+        if (input.isEmpty())
+            return default
+
         val moshiBuilder = Moshi.Builder()
         val indexOfAdapter = customAdapters.indexOfFirst { it.first == clazz }
         if (indexOfAdapter >= 0) {
@@ -95,14 +150,11 @@ object PreferencesHelper {
         return jsonAdapter.fromJson(input) ?: default ?: clazz.objectInstance!!
     }
 
-    fun setAndEncrypt(context: Context, key: String, value: String) {
-        val encryptedString = KeyStoreHelper.encryptString(context, value)
-        set(context, key, encryptedString)
-    }
-
-    fun getEncrypted(context: Context, key: String): String {
-        val encryptedString = get<String>(context, key)
-        return KeyStoreHelper.decryptString(context, encryptedString)
+    /**
+     * Determines if the sharedPreferences contains a value for the given key
+     */
+    fun contains(context: Context, key: String): Boolean {
+        return android.preference.PreferenceManager.getDefaultSharedPreferences(context).contains(key)
     }
 
     internal fun setLong(context: Context, key: String, value: Long): SharedPreferences.Editor {
