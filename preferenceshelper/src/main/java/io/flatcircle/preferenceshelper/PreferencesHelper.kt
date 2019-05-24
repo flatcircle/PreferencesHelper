@@ -15,11 +15,11 @@ object PreferencesHelper {
     /**
      * This function adds a custom adapter for a given class. Adapter is applied to the Moshi serializer.
      */
-    inline fun <reified T: Any> addCustomAdapter(adapter: Any) {
+    inline fun <reified T : Any> addCustomAdapter(adapter: Any) {
         addCustomAdapter(adapter, T::class)
     }
     @PublishedApi
-    internal fun <T: Any> addCustomAdapter(adapter: Any, clazz: KClass<T>) {
+    internal fun <T : Any> addCustomAdapter(adapter: Any, clazz: KClass<T>) {
         val nuAdapterPair = Pair(clazz, adapter)
         val indexOfExistingAdapter = customAdapters.indexOfFirst { it.first == clazz }
         if (indexOfExistingAdapter < 0) {
@@ -36,21 +36,21 @@ object PreferencesHelper {
      * @param key SharedPreferences String Key
      * @param default is optional, unless you are getting a custom object
      */
-    @Throws (IllegalArgumentException::class)
-    inline fun <reified T: Any> get(context: Context, key: String, default: T? = null): T {
+    @Throws(IllegalArgumentException::class)
+    inline fun <reified T : Any> get(context: Context, key: String, default: T? = null): T {
         return get(context, key, default, T::class)
     }
 
     /**
      * Same as get, but enforces null safety on custom objects via the default parameter
      */
-    inline fun <reified T: Any> getSafely(context: Context, key: String, default: T): T {
+    inline fun <reified T : Any> getSafely(context: Context, key: String, default: T): T {
         return get(context, key, default, T::class)
     }
 
     @Suppress("UNCHECKED_CAST")
     @PublishedApi
-    internal fun <T: Any> get(context: Context, key: String, default: T?, clazz: KClass<T>): T {
+    internal fun <T : Any> get(context: Context, key: String, default: T?, clazz: KClass<T>): T {
 
         return when (clazz) {
             Long::class -> getLong(context, key, default as Long? ?: 0L) as T
@@ -67,19 +67,19 @@ object PreferencesHelper {
     /**
      * Sets the given key value pair in Preferences. Uses apply, so returns before finishing.
      */
-    inline fun <reified T: Any> set(context: Context, key: String, value: T) {
+    inline fun <reified T : Any> set(context: Context, key: String, value: T) {
         set(context, key, value, T::class).apply()
     }
 
     /**
      * Sets the given key-value pair in Preferences. Uses commit, so only returns when finishing.
      */
-    inline fun <reified T: Any> setSync(context: Context, key: String, value: T) {
+    inline fun <reified T : Any> setSync(context: Context, key: String, value: T) {
         set(context, key, value, T::class).commit()
     }
 
     @PublishedApi
-    internal fun <T: Any> set(context: Context, key: String, value: T, clazz: KClass<T>): SharedPreferences.Editor {
+    internal fun <T : Any> set(context: Context, key: String, value: T, clazz: KClass<T>): SharedPreferences.Editor {
 
         return when (clazz) {
             Long::class -> setLong(context, key, value as Long)
@@ -112,11 +112,11 @@ object PreferencesHelper {
      * Takes a given class and serializes it into a JSON String using Moshi. May require setting a
      * custom adapter via addCustomAdapter
      */
-    inline fun <reified T: Any> serializeIntoString(input: T): String {
+    inline fun <reified T : Any> serializeIntoString(input: T): String {
         return serializeIntoString(input, T::class)
     }
     @PublishedApi
-    internal fun <T: Any> serializeIntoString(input: T, clazz: KClass<T>): String {
+    internal fun <T : Any> serializeIntoString(input: T, clazz: KClass<T>): String {
         val moshiBuilder = Moshi.Builder()
         val indexOfAdapter = customAdapters.indexOfFirst { it.first == clazz }
         if (indexOfAdapter >= 0) {
@@ -132,11 +132,11 @@ object PreferencesHelper {
      *
      * @param default is required in case of invalid string or serialization errors
      */
-    inline fun <reified T: Any> serializeFromString(input: String, default: T): T {
+    inline fun <reified T : Any> serializeFromString(input: String, default: T): T {
         return serializeFromString(input, T::class, default)
     }
     @PublishedApi
-    internal fun <T: Any> serializeFromString(input: String, clazz: KClass<T>, default: T): T {
+    internal fun <T : Any> serializeFromString(input: String, clazz: KClass<T>, default: T): T {
         if (input.isEmpty())
             return default
 

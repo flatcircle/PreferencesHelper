@@ -23,8 +23,8 @@ class Prefs(var context: Context?) {
      * @param key SharedPreferences String Key
      * @param default is optional, unless you are getting a custom object
      */
-    @Throws (IllegalArgumentException::class)
-    inline fun <reified T: Any> get(key: String, default: T? = null): T {
+    @Throws(IllegalArgumentException::class)
+    inline fun <reified T : Any> get(key: String, default: T? = null): T {
         checkContext()
         return PreferencesHelper.get(context!!, key, default, T::class)
     }
@@ -32,7 +32,7 @@ class Prefs(var context: Context?) {
     /**
      * Sets the given key value pair in Preferences. Uses apply, so returns before finishing.
      */
-    inline fun <reified T: Any> set(key: String, value: T) {
+    inline fun <reified T : Any> set(key: String, value: T) {
         checkContext()
         PreferencesHelper.set(context!!, key, value, T::class).apply()
     }
@@ -40,7 +40,7 @@ class Prefs(var context: Context?) {
     /**
      * Sets the given key-value pair in Preferences. Uses commit, so only returns when finishing.
      */
-    inline fun <reified T: Any> setSync(key: String, value: T) {
+    inline fun <reified T : Any> setSync(key: String, value: T) {
         checkContext()
         PreferencesHelper.set(context!!, key, value, T::class).commit()
     }
