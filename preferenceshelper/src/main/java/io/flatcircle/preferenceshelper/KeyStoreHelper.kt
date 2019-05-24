@@ -55,7 +55,8 @@ object KeyStoreHelper {
     }
 
     fun decryptString(context: Context, encryptedText: String): String {
-        require(encryptedText.isNotEmpty())
+        if (encryptedText.isEmpty())
+            return ""
         getKeyStore(context)
 
         if (encryptedText.isNotEmpty()) {
