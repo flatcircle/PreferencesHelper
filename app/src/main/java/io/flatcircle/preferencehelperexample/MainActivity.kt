@@ -13,10 +13,11 @@ import kotlinx.android.synthetic.main.content_main.*
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.ToJson
-
-
+import io.flatcircle.preferenceshelper.Prefs
 
 class MainActivity : AppCompatActivity() {
+
+    lateinit var prefs: Prefs
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,10 +42,16 @@ class MainActivity : AppCompatActivity() {
         val encryptAgain = PreferencesHelper.getEncrypted(this, encryptStringKey)
         val matchEncryptedStorage = encryptString == encryptAgain
 
+        /**
+         * You can also use the Prefs(context) class if you don't want to pass the context every time,
+         * but requires clearing. Use with dependency injection and/or coupled with lifecycle of activity/app
+         */
+        prefs = Prefs(this)
+
         val integerKey = "key_integer"
         val integer = 451
-        PreferencesHelper.set(this, integerKey, integer)
-        val integerAgain = PreferencesHelper.get<Int>(this, integerKey)
+        prefs.set(integerKey, integer)
+        val integerAgain = prefs.get<Int>(integerKey)
         val matchInt = integer == integerAgain
 
         val longKey = "key_long"
@@ -80,6 +87,7 @@ class MainActivity : AppCompatActivity() {
         val matchAll = matchString && matchEncryptedStorage && matchInt && matchLong &&
             matchBoolean && matchCustom && matchCustomier && matchEncryption
 
+
         textView.text = "All classes have been stored and obtained successfully? \n $matchAll"
 
     }
@@ -107,6 +115,11 @@ class MainActivity : AppCompatActivity() {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        prefs.clear() // Prefs must be cleared to avoid leaks
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

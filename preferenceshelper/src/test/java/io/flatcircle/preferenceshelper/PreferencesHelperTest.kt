@@ -35,5 +35,4 @@ class PreferencesHelperTest {
     }
 
     data class TestyClass(val name: String, val age: Int)
-
 }
