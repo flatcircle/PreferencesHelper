@@ -87,9 +87,7 @@ class MainActivity : AppCompatActivity() {
         val matchAll = matchString && matchEncryptedStorage && matchInt && matchLong &&
             matchBoolean && matchCustom && matchCustomier && matchEncryption
 
-
         textView.text = "All classes have been stored and obtained successfully? \n $matchAll"
-
     }
 
     data class CustomClass(val string: String, val integer: Int)
@@ -105,8 +103,8 @@ class MainActivity : AppCompatActivity() {
         fun fromJson(jsonSource: String): CustomierCustomClass {
             if (jsonSource.length != 3) throw JsonDataException("Invalid input")
 
-            val string = jsonSource.substring(0,2)
-            val integer = jsonSource.substring(2,3)
+            val string = jsonSource.substring(0, 2)
+            val integer = jsonSource.substring(2, 3)
             return CustomierCustomClass(string, integer.toInt())
         }
     }

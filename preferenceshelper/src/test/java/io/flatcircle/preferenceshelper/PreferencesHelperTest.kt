@@ -31,7 +31,7 @@ class PreferencesHelperTest {
         assert(rightClass == deserializedClass)
 
         val defaultClass = PreferencesHelper.serializeFromString("", rightClass)
-        assert (defaultClass == rightClass)
+        assert(defaultClass == rightClass)
     }
 
     data class TestyClass(val name: String, val age: Int)
