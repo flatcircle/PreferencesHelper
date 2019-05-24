@@ -3,7 +3,15 @@ Functions to help with checking your app's online status
 
 [![CircleCI](https://circleci.com/gh/flatcircle/PreferencesHelper.svg?style=svg)](https://circleci.com/gh/flatcircle/PreferencesHelper) [ ![Download](https://api.bintray.com/packages/flatcircle/PreferencesHelper/preferenceshelper/images/download.svg) ](https://bintray.com/flatcircle/PreferencesHelper/preferenceshelper/_latestVersion)
 
-This is a Kotlin-only library which relies heavily on generics and type inference to make writing to and reading from Android SharedPreferences as easy as possible.
+This is a Kotlin-only library which relies heavily on generics and type inference to make writing to and reading from Android SharedPreferences as easy as possible. For example:
+
+```kotlin
+    val prefs = Prefs(this)
+    val name = "Flat Circle"
+    prefs.set("key_name", name)
+    val ourname: String = prefs.get("key_name")
+
+```
 
 Installation
 --------
@@ -38,5 +46,8 @@ The PreferencesHelper library also comes with basic KeyStore management for encr
 | encryptString(context, string) | Returns an encrypted version of a given string | [Example](https://github.com/flatcircle/PreferencesHelper/blob/master/app/src/main/java/io/flatcircle/preferencehelperexample/MainActivity.kt#L32)  |
 | decryptString(context, string) | Decrypts a given string that was encrypted with above method. | [Example](https://github.com/flatcircle/PreferencesHelper/blob/master/app/src/main/java/io/flatcircle/preferencehelperexample/MainActivity.kt#L32)  |
 
+You can also use the Prefs(context) class if you don't want to pass the context every time. It requires that you .clear() the Prefs() class at the end of your app/activity lifecycle to avoid memory leaks, so use with care.
+
+You can see an example of the Prefs class being instantiated, used and cleared [Here](https://github.com/flatcircle/PreferencesHelper/blob/master/app/src/main/java/io/flatcircle/preferencehelperexample/MainActivity.kt#L122)
 
 I know it's tempting to think you can use this as a replacement for a database, but please don't. When you start to serialize lists of custom classes you should really just create a database module to handle that.
