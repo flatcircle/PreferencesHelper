@@ -9,8 +9,8 @@ This is a Kotlin-only library which relies heavily on generics and type inferenc
     val prefs = Prefs(this)
     val name = "Flat Circle"
     prefs.set("key_name", name)
-    val ourname: String = prefs.get("key_name")
-
+    val ourName: String = prefs.get("key_name")
+    prefs.clear()
 ```
 
 Installation
