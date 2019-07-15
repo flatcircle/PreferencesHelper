@@ -69,14 +69,14 @@ class MainActivity : AppCompatActivity() {
         val customKey = "key_custom_class"
         val customClass = CustomClass(string, integer)
         PreferencesHelper.set(this, customKey, customClass)
-        val customAgain = PreferencesHelper.get<CustomClass>(this, customKey)
+        val customAgain = PreferencesHelper.get(this, customKey, CustomClass("default", -1))
         val matchCustom = customClass == customAgain
 
         val customierKey = "key_customier_class"
         val customierClass = CustomierCustomClass("AA", 2)
         PreferencesHelper.addCustomAdapter<CustomierCustomClass>(CustomierAdapter())
         PreferencesHelper.set(this, customierKey, customierClass)
-        val customierAgain = PreferencesHelper.get<CustomierCustomClass>(this, customierKey)
+        val customierAgain = PreferencesHelper.get(this, customierKey, CustomierCustomClass("BB", -1))
         val matchCustomier = customierClass == customierAgain
 
         val stringUnencrypted = "U357 is on the way"

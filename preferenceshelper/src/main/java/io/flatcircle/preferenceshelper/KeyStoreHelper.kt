@@ -34,8 +34,9 @@ object KeyStoreHelper {
         getKeyStore(context)
 
         try {
-            val privateKeyEntry = keyStore!!.getEntry(keyStoreAlias, null) as KeyStore.PrivateKeyEntry
-            val publicKey = privateKeyEntry.certificate.publicKey
+            keyStore!!.load(null)
+
+            val publicKey = keyStore!!.getCertificate(keyStoreAlias).publicKey
 
             val input = Cipher.getInstance("RSA/ECB/PKCS1Padding", "AndroidOpenSSL")
             input.init(Cipher.ENCRYPT_MODE, publicKey)
