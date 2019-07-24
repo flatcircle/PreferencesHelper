@@ -69,4 +69,17 @@ class Prefs(var context: Context?) {
     fun clear() {
         context = null
     }
+
+    @Deprecated("This is only hear for quickfix purposes")
+    fun edit() {}
+
+    @Deprecated("This is only hear for quickfix purposes")
+    fun commit() {}
+
+    @Deprecated(
+        level = DeprecationLevel.ERROR,
+        message = ".set() should be used with type inferences",
+        replaceWith = ReplaceWith("set(key, value)")
+    )
+    fun putBoolean(key: String, value: Boolean){}
 }

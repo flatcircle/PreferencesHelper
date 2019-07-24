@@ -11,9 +11,15 @@ class WrongPreferencesUsageDetectorTest {
 
     private val PREFERENCES_STUB = kotlin("""
       |package io.flatcircle.preferenceshelper
+      |
+      |import android.preference.PreferenceManager
+      |
       |object PreferencesHelper {
       |  private fun oldPrefs() {
-      |     val prefs = android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+      |     val unit = Prefs(this).set("hi", true).apply()
+      |     val prefs = PreferenceManager.getDefaultSharedPreferences(context).edit()
+      |     
+      |     val fixedPrefs1 = Prefs(this).edit()
       |  }
       |}""".trimMargin())
 
@@ -25,21 +31,39 @@ class WrongPreferencesUsageDetectorTest {
             .issues(WrongPreferencesUsageDetector.ISSUE_OLD_PREFERENCES)
             .run()
             .expect("""
-                |src/io/flatcircle/preferenceshelper/PreferencesHelper.kt:4: Warning: Using 'SharedPreferences' instead of 'PreferencesHelper' [OldSharedPreferences]
-                |     val prefs = android.preference.PreferenceManager.getDefaultSharedPreferences(context)
-                |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 1 warnings""".trimMargin())
-//            .expectFixDiffs("""
-//            |Fix for src/foo/Example.java line 4: Replace with Timber.tag("TAG").d("msg"):
-//            |@@ -5 +5
-//            |-     Log.d("TAG", "msg");
-//            |+     Timber.tag("TAG").d("msg");
-//            |Fix for src/foo/Example.java line 4: Replace with Timber.d("msg"):
-//            |@@ -5 +5
-//            |-     Log.d("TAG", "msg");
-//            |+     Timber.d("msg");
-//            |""".trimMargin())
+                |src/io/flatcircle/preferenceshelper/PreferencesHelper.kt:7: Warning: Using 'SharedPreferences' instead of 'PreferencesHelper' [DirectSharedPreferences]
+                |     val prefs = PreferenceManager.getDefaultSharedPreferences(context).edit()
+                |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                |0 errors, 1 warnings""".trimMargin())
+            .expectFixDiffs("""
+                |Fix for src/io/flatcircle/preferenceshelper/PreferencesHelper.kt line 7: Replace with Prefs(context):
+                |@@ -7 +7
+                |-      val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+                |+      val prefs = Prefs(context)
+            |""".trimMargin())
     }
+
+    @Test
+    fun editingPrefsDirectly() {
+
+        lint()
+            .files(PREFERENCES_STUB)
+            .issues(WrongPreferencesUsageDetector.ISSUE_OLD_PREFERENCES)
+            .run()
+            .expect("""
+                |src/io/flatcircle/preferenceshelper/PreferencesHelper.kt:7: Warning: Using 'SharedPreferences' instead of 'PreferencesHelper' [DirectSharedPreferences]
+                |     val prefs = PreferenceManager.getDefaultSharedPreferences(context).edit()
+                |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                |0 errors, 1 warnings""".trimMargin())
+            .expectFixDiffs("""
+                |Fix for src/io/flatcircle/preferenceshelper/PreferencesHelper.kt line 7: Replace with Prefs(context):
+                |@@ -7 +7
+                |-      val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+                |+      val prefs = Prefs(context)
+            |""".trimMargin())
+
+    }
+
 
 
 

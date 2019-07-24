@@ -49,7 +49,12 @@ class MainActivity : AppCompatActivity() {
          */
         prefs = Prefs(this)
 
-        val prefffs = PreferenceManager.getDefaultSharedPreferences(this)
+        val unit = Prefs(this).set("hi", true).apply()
+
+        val prefffs = PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("hi", true).apply()
+        val inty = PreferenceManager.getDefaultSharedPreferences(this).getInt("hi", -1)
+        val fixedPrefs = Prefs(this)
+
 //        prefffs.getInt()
 
         val integerKey = "key_integer"
