@@ -1,6 +1,7 @@
 package io.flatcircle.preferencehelperexample
 
 import android.os.Bundle
+import android.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
@@ -47,6 +48,9 @@ class MainActivity : AppCompatActivity() {
          * but requires clearing. Use with dependency injection and/or coupled with lifecycle of activity/app
          */
         prefs = Prefs(this)
+
+        val prefffs = PreferenceManager.getDefaultSharedPreferences(this)
+//        prefffs.getInt()
 
         val integerKey = "key_integer"
         val integer = 451
