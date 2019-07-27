@@ -9,62 +9,103 @@ import org.junit.Test
  */
 class WrongPreferencesUsageDetectorTest {
 
-    private val PREFERENCES_STUB = kotlin("""
+    private val STUB_OLD_PREFS = kotlin("""
       |package io.flatcircle.preferenceshelper
       |
-      |import android.preference.PreferenceManager
+      |  import android.preference.PreferenceManager
+      |  import io.flatcircle.preferenceshelper.Prefs
       |
-      |object PreferencesHelper {
-      |  private fun oldPrefs() {
-      |     val unit = Prefs(this).set("hi", true).apply()
+      |private fun oldPrefs() {
+      |
       |     val prefs = PreferenceManager.getDefaultSharedPreferences(context).edit()
-      |     
-      |     val fixedPrefs1 = Prefs(this).edit()
-      |  }
       |}""".trimMargin())
 
     @Test
     fun usingOldSharedPreferences() {
 
         lint()
-            .files(PREFERENCES_STUB)
+            .files(STUB_OLD_PREFS)
             .issues(WrongPreferencesUsageDetector.ISSUE_OLD_PREFERENCES)
             .run()
             .expect("""
-                |src/io/flatcircle/preferenceshelper/PreferencesHelper.kt:7: Warning: Using 'SharedPreferences' instead of 'PreferencesHelper' [DirectSharedPreferences]
+                |src/io/flatcircle/preferenceshelper/test.kt:8: Warning: Using 'SharedPreferences' instead of 'PreferencesHelper' [DirectSharedPreferences]
                 |     val prefs = PreferenceManager.getDefaultSharedPreferences(context).edit()
                 |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 |0 errors, 1 warnings""".trimMargin())
             .expectFixDiffs("""
-                |Fix for src/io/flatcircle/preferenceshelper/PreferencesHelper.kt line 7: Replace with Prefs(context):
-                |@@ -7 +7
-                |-      val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-                |+      val prefs = Prefs(context)
+                |Fix for src/io/flatcircle/preferenceshelper/test.kt line 8: Replace with Prefs(context):
+                |@@ -8 +8
+                |-      val prefs = PreferenceManager.getDefaultSharedPreferences(context).edit()
+                |+      val prefs = Prefs(context).edit()
             |""".trimMargin())
     }
+
+    private val PREFERENCES_STUB_2 = kotlin("""
+    |package io.flatcircle.preferenceshelper
+    |
+    |class Prefs {
+    |
+    |    fun putBoolean(key: String, value: Boolean) {}
+    |    fun edit(){} 
+    |    
+    |    fun doWrongs() {
+    |
+    |        Prefs().edit()
+    |    }
+    |}""".trimMargin())
 
     @Test
     fun editingPrefsDirectly() {
 
         lint()
-            .files(PREFERENCES_STUB)
-            .issues(WrongPreferencesUsageDetector.ISSUE_OLD_PREFERENCES)
+            .files(PREFERENCES_STUB_2)
+            .issues(WrongPreferencesUsageDetector.ISSUE_LINGERING_EDIT)
             .run()
             .expect("""
-                |src/io/flatcircle/preferenceshelper/PreferencesHelper.kt:7: Warning: Using 'SharedPreferences' instead of 'PreferencesHelper' [DirectSharedPreferences]
-                |     val prefs = PreferenceManager.getDefaultSharedPreferences(context).edit()
-                |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                |src/io/flatcircle/preferenceshelper/Prefs.kt:10: Warning: Attempting to edit Prefs directly' [LingeringEdit]
+                |        Prefs().edit()
+                |        ~~~~~~~~~~~~~~
                 |0 errors, 1 warnings""".trimMargin())
             .expectFixDiffs("""
-                |Fix for src/io/flatcircle/preferenceshelper/PreferencesHelper.kt line 7: Replace with Prefs(context):
-                |@@ -7 +7
-                |-      val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-                |+      val prefs = Prefs(context)
-            |""".trimMargin())
+                |Fix for src/io/flatcircle/preferenceshelper/Prefs.kt line 10: Delete ".edit()":
+                |@@ -10 +10
+                |-         Prefs().edit()
+                |+         Prefs()
+                |""".trimMargin())
 
     }
 
+    private val STUB_PUT_BOOL = kotlin("""
+    |package io.flatcircle.preferenceshelper
+    |
+    |class Prefs {
+    |
+    |    fun putBoolean(key: String, value: Boolean) {}
+    |    
+    |    fun doWrongs() {
+    |
+    |        Prefs().putBoolean("abc", true)
+    |    }
+    |}""".trimMargin())
 
+    @Test
+    fun usingPutBoolean() {
 
+        lint()
+            .files(STUB_PUT_BOOL)
+            .issues(WrongPreferencesUsageDetector.ISSUE_PUT_BOOLEAN)
+            .run()
+            .expect("""
+                |src/io/flatcircle/preferenceshelper/Prefs.kt:9: Warning: Don't use putPrimitive [NotUsingSet]
+                |        Prefs().putBoolean("abc", true)
+                |        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                |0 errors, 1 warnings""".trimMargin())
+            .expectFixDiffs("""
+                |Fix for src/io/flatcircle/preferenceshelper/Prefs.kt line 9: Replace with set("abc", true):
+                |@@ -9 +9
+                |-         Prefs().putBoolean("abc", true)
+                |+         Prefs().set("abc", true)
+            |""".trimMargin())
+    }
 
 }

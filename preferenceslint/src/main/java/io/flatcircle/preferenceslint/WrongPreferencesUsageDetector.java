@@ -21,7 +21,7 @@ public final class WrongPreferencesUsageDetector extends Detector implements Det
 
     static Issue[] getIssues() {
         return new Issue[] {
-                ISSUE_OLD_PREFERENCES, ISSUE_DIRECT_EDIT, ISSUE_LINGERING_EDIT, ISSUE_LINGERING_APPLY
+                ISSUE_OLD_PREFERENCES, ISSUE_DIRECT_EDIT, ISSUE_LINGERING_EDIT, ISSUE_PUT_BOOLEAN
         };
     }
 
@@ -44,18 +44,18 @@ public final class WrongPreferencesUsageDetector extends Detector implements Det
     public static final Issue ISSUE_LINGERING_EDIT =
             Issue.create("LingeringEdit", "You cannot edit Prefs",
                     "Probably after doing a quickfix.",
-                    Category.MESSAGES, 8, Severity.ERROR,
+                    Category.MESSAGES, 6, Severity.WARNING,
                     new Implementation(WrongPreferencesUsageDetector.class, Scope.JAVA_FILE_SCOPE));
 
 
-    public static final Issue ISSUE_LINGERING_APPLY =
-            Issue.create("LingeringApply", "You don't need to apply anymore",
-                    "Probably after doing a quickfix.",
-                    Category.MESSAGES, 8, Severity.ERROR,
+    public static final Issue ISSUE_PUT_BOOLEAN =
+            Issue.create("NotUsingSet", "Don't use putPrimitive",
+                    "Use .set() instead.",
+                    Category.MESSAGES, 6, Severity.WARNING,
                     new Implementation(WrongPreferencesUsageDetector.class, Scope.JAVA_FILE_SCOPE));
 
     @Override public List<String> getApplicableMethodNames() {
-        return Arrays.asList("getDefaultSharedPreferences", "edit", "commit", "apply");
+        return Arrays.asList("getDefaultSharedPreferences", "edit", "commit", "apply", "putBoolean", "putString");
     }
 
     @Override public void visitMethod(JavaContext context, UCallExpression call, PsiMethod method) {
@@ -64,23 +64,28 @@ public final class WrongPreferencesUsageDetector extends Detector implements Det
         String parentname = call.getUastParent().asSourceString();
 //        String parentType = call.getUastParent().
 
-        if ("getDefaultSharedPreferences".equals(methodName) && evaluator.isMemberInClass(method, "android.preference.PreferenceManager")) {
-            LintFix fix = quickFixIssueOldPreferences(call);
-            context.report(ISSUE_OLD_PREFERENCES, call, context.getLocation(call),
-                    "Using 'SharedPreferences' instead of 'PreferencesHelper'",
-                    fix);
-            return;
-        }
         if ("edit".equals(methodName) && evaluator.isMemberInClass(method, "io.flatcircle.preferenceshelper.Prefs")) {
             LintFix fix = quickFixDelete(call);
-            context.report(ISSUE_LINGERING_EDIT, call, context.getLocation(call),
+            context.report(ISSUE_LINGERING_EDIT,  call, context.getLocation(call),
                     "Attempting to edit Prefs directly'",
                     fix);
             return;
         }
 
-        if ("apply".equals(methodName) && "Unit".equals(parentname)) {
-            context.report(ISSUE_LINGERING_APPLY, call, context.getLocation(call), "Attempting to apply a unit");
+        if (("putBoolean".equals(methodName) || "putString".equals(methodName))
+                && evaluator.isMemberInClass(method, "io.flatcircle.preferenceshelper.Prefs")) {
+            LintFix fix = quickFixPut(call);
+            context.report(ISSUE_PUT_BOOLEAN, call, context.getLocation(call),
+                    "Don't use putPrimitive",
+                    fix);
+            return;
+        }
+
+        if ("getDefaultSharedPreferences".equals(methodName) && evaluator.isMemberInClass(method, "android.preference.PreferenceManager")) {
+            LintFix fix = quickFixIssueOldPreferences(call);
+            context.report(ISSUE_OLD_PREFERENCES, call, context.getLocation(call),
+                    "Using 'SharedPreferences' instead of 'PreferencesHelper'",
+                    fix);
             return;
         }
     }
@@ -90,10 +95,27 @@ public final class WrongPreferencesUsageDetector extends Detector implements Det
         UExpression context = arguments.get(0);
 
         String fixSource = "Prefs(" + context.asSourceString() + ")";
-        String logCallSource = "PreferenceManager."+logCall.asSourceString();
+        String logCallSource = "PreferenceManager." + logCall.asSourceString();
 
         LintFix.GroupBuilder fixGrouper = fix().group();
         fixGrouper.add(fix().replace().text(logCallSource).shortenNames().reformat(true).with(fixSource).build());
+        return fixGrouper.build();
+    }
+
+    private LintFix quickFixPut(UCallExpression logCall) {
+        List<UExpression> arguments = logCall.getValueArguments();
+        UExpression key = arguments.get(0);
+        UExpression value = arguments.get(1);
+
+        String fixSource = "set(" + key.asSourceString() + ", " + value.asSourceString() + ")";
+        String withApply = logCall.asSourceString() + ".apply()";
+        String withCommit = logCall.asSourceString() + ".commit()";
+        String withNeither = logCall.asSourceString();
+
+        LintFix.GroupBuilder fixGrouper = fix().group();
+//        fixGrouper.add(fix().replace().text(withApply).shortenNames().reformat(true).with(fixSource).build());
+//        fixGrouper.add(fix().replace().text(withCommit).shortenNames().reformat(true).with(fixSource).build());
+        fixGrouper.add(fix().replace().text(withNeither).shortenNames().reformat(true).with(fixSource).build());
         return fixGrouper.build();
     }
 

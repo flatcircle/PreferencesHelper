@@ -70,16 +70,18 @@ class Prefs(var context: Context?) {
         context = null
     }
 
-    @Deprecated("This is only hear for quickfix purposes")
-    fun edit() {}
+    @Deprecated("This does nothing")
+    fun edit(): Prefs {
+        return this
+    }
 
-    @Deprecated("This is only hear for quickfix purposes")
+//    @Deprecated("Delete this")
     fun commit() {}
-
-    @Deprecated(
-        level = DeprecationLevel.ERROR,
-        message = ".set() should be used with type inferences",
-        replaceWith = ReplaceWith("set(key, value)")
-    )
+//
+//    @Deprecated(
+//        level = DeprecationLevel.ERROR,
+//        message = ".set() should be used with type inferences",
+//        replaceWith = ReplaceWith("set(key, value)")
+//    )
     fun putBoolean(key: String, value: Boolean){}
 }
