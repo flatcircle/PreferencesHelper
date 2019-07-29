@@ -46,7 +46,7 @@ jobs:
       - run:
           name: Run Tests
           command: ./gradlew testDebugUnitTest -x lint
-      - run
+      - run:
           name: Run Lint Tests
           command: ./gradlew :preferenceslint:test
       - store_artifacts:
