@@ -72,7 +72,6 @@ class WrongPreferencesUsageDetectorTest {
                 |-         Prefs().edit()
                 |+         Prefs()
                 |""".trimMargin())
-
     }
 
     private val STUB_PUT_BOOL = kotlin("""
@@ -107,5 +106,4 @@ class WrongPreferencesUsageDetectorTest {
                 |+         Prefs().set("abc", true)
             |""".trimMargin())
     }
-
 }

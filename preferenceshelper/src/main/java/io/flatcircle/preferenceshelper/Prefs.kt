@@ -83,5 +83,5 @@ class Prefs(var context: Context?) {
 //        message = ".set() should be used with type inferences",
 //        replaceWith = ReplaceWith("set(key, value)")
 //    )
-    fun putBoolean(key: String, value: Boolean){}
+    fun putBoolean(key: String, value: Boolean) {}
 }
