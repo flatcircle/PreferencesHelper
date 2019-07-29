@@ -1,0 +1,25 @@
+apply plugin: 'java-library'
+apply plugin: 'kotlin'
+
+targetCompatibility = JavaVersion.VERSION_1_7
+sourceCompatibility = JavaVersion.VERSION_1_7
+
+dependencies {
+    compileOnly deps.lint.api
+    compileOnly deps.lint.checks
+    testImplementation deps.lint.core
+    testImplementation deps.lint.tests
+}
+
+test {
+    reports {
+        junitXml.enabled = true
+        junitXml.destination = file("$buildDir/../../build/test-results/preferenceslint")
+    }
+}
+
+jar {
+    manifest {
+        attributes('Lint-Registry-v2': 'io.flatcircle.preferenceslint.PreferencesIssueRegistry')
+    }
+}
