@@ -11,6 +11,13 @@ dependencies {
     testImplementation deps.lint.tests
 }
 
+test {
+    reports {
+        junitXml.enabled = true
+        junitXml.destination = file("$buildDir/../../build/test-results/preferenceslint")
+    }
+}
+
 jar {
     manifest {
         attributes('Lint-Registry-v2': 'io.flatcircle.preferenceslint.PreferencesIssueRegistry')
