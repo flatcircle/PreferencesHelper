@@ -13,7 +13,6 @@ class WrongPreferencesUsageDetectorTest {
       |package io.flatcircle.preferenceshelper
       |
       |  import android.preference.PreferenceManager
-      |  import io.flatcircle.preferenceshelper.Prefs
       |
       |private fun oldPrefs() {
       |
@@ -28,13 +27,13 @@ class WrongPreferencesUsageDetectorTest {
             .issues(WrongPreferencesUsageDetector.ISSUE_OLD_PREFERENCES)
             .run()
             .expect("""
-                |src/io/flatcircle/preferenceshelper/test.kt:8: Warning: Using 'SharedPreferences' instead of 'PreferencesHelper' [DirectSharedPreferences]
+                |src/io/flatcircle/preferenceshelper/test.kt:7: Warning: Using 'SharedPreferences' instead of 'PreferencesHelper' [DirectSharedPreferences]
                 |     val prefs = PreferenceManager.getDefaultSharedPreferences(context).edit()
                 |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 |0 errors, 1 warnings""".trimMargin())
             .expectFixDiffs("""
-                |Fix for src/io/flatcircle/preferenceshelper/test.kt line 8: Replace with Prefs(context):
-                |@@ -8 +8
+                |Fix for src/io/flatcircle/preferenceshelper/test.kt line 7: Replace with Prefs(context):
+                |@@ -7 +7
                 |-      val prefs = PreferenceManager.getDefaultSharedPreferences(context).edit()
                 |+      val prefs = Prefs(context).edit()
             |""".trimMargin())

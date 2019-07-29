@@ -52,10 +52,6 @@ class MainActivity : AppCompatActivity() {
         PreferenceManager.getDefaultSharedPreferences(this).getBoolean("hi", true)
 
         val prefffs = PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("hi", true).apply()
-//        val inty = PreferenceManager.getDefaultSharedPreferences(this).getInt("hi", -1)
-//        val fixedPrefs = Prefs(this).edit()
-
-//        prefffs.getInt()
 
         val integerKey = "key_integer"
         val integer = 451
