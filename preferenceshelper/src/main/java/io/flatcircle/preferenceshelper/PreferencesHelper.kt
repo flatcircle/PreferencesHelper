@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
+import java.lang.RuntimeException
 import kotlin.reflect.KClass
 
 object PreferencesHelper {
@@ -135,7 +136,9 @@ object PreferencesHelper {
     inline fun <reified T : Any> serializeFromString(input: String, default: T): T {
         return serializeFromString(input, T::class, default)
     }
+
     @PublishedApi
+    @Throws(IllegalArgumentException::class)
     internal fun <T : Any> serializeFromString(input: String, clazz: KClass<T>, default: T): T {
         if (input.isEmpty())
             return default
@@ -147,7 +150,11 @@ object PreferencesHelper {
         }
         val moshi = moshiBuilder.build()
         val jsonAdapter: JsonAdapter<T> = moshi.adapter(clazz.java)
-        return jsonAdapter.fromJson(input) ?: default ?: clazz.objectInstance!!
+        try {
+            return jsonAdapter.fromJson(input) ?: default ?: clazz.objectInstance!!
+        } catch (e: RuntimeException) {
+            throw java.lang.IllegalArgumentException("Unable to serialize $input into $clazz due to... ${e.localizedMessage}")
+        }
     }
 
     /**
