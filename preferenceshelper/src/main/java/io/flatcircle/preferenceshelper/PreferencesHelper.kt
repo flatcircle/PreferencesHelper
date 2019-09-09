@@ -7,7 +7,6 @@ import android.content.SharedPreferences
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonEncodingException
 import com.squareup.moshi.Moshi
-import java.lang.RuntimeException
 import kotlin.reflect.KClass
 
 object PreferencesHelper {
