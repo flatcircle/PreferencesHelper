@@ -5,6 +5,7 @@ package io.flatcircle.preferenceshelper
 import android.content.Context
 import android.content.SharedPreferences
 import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.JsonEncodingException
 import com.squareup.moshi.Moshi
 import java.lang.RuntimeException
 import kotlin.reflect.KClass
@@ -152,7 +153,7 @@ object PreferencesHelper {
         val jsonAdapter: JsonAdapter<T> = moshi.adapter(clazz.java)
         try {
             return jsonAdapter.fromJson(input) ?: default ?: clazz.objectInstance!!
-        } catch (e: RuntimeException) {
+        } catch (e: JsonEncodingException) {
             throw java.lang.IllegalArgumentException("Unable to serialize $input into $clazz due to... ${e.localizedMessage}")
         }
     }
