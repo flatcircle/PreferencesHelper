@@ -39,7 +39,7 @@ publish {
     groupId = 'io.flatcircle'
     repoName = 'PreferencesHelper'
     artifactId = 'preferenceshelper'
-    publishVersion = '0.0.5'
+    publishVersion = '0.0.6'
     bintrayUser = 'chesterflatcircle'
     bintrayKey = System.getenv("BINTRAY_KEY")
     desc = 'Utility functions for assisting access to SharedPreferences and KeyStore'
