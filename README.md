@@ -7,7 +7,7 @@ This is a Kotlin-only library which relies heavily on generics and type inferenc
 
 ```kotlin
     val prefs = Prefs(this)
-    prefs.set("key_name", "Flat Circle)
+    prefs.set("key_name", "Flat Circle")
     val ourName: String = prefs.get("key_name")
 ```
 
