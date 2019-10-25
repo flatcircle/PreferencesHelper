@@ -7,7 +7,7 @@ This is a Kotlin-only library which relies heavily on generics and type inferenc
 
 ```kotlin
     val prefs = Prefs(this)
-    prefs.set("key_name", "Flat Circle)
+    prefs.set("key_name", "Flat Circle")
     val ourName: String = prefs.get("key_name")
 ```
 
@@ -49,3 +49,19 @@ You can also use the Prefs(context) class if you don't want to pass the context 
 You can see an example of the Prefs class being instantiated, used and cleared [Here](https://github.com/flatcircle/PreferencesHelper/blob/master/app/src/main/java/io/flatcircle/preferencehelperexample/MainActivity.kt#L122)
 
 I know it's tempting to think you can use this as a replacement for a database, but please don't. When you start to serialize lists of custom classes you should really just create a database module to handle that.
+
+
+Delegates
+-----
+
+You can use delegates to set up a variable which automatically loads from sharedPreferences and automatically saves to SharedPreferences every time that it changes.
+
+```kotlin
+    val prefs = Prefs(this)
+    
+    var name = ObservablePreferences(prefs, "name_key", "Jack")
+    
+    println(name) // prints "Smith", unless your SharedPreferences is empty, then it prints "Jack"
+    name = "Smith"
+    println(name) //prints "Smith"
+```
