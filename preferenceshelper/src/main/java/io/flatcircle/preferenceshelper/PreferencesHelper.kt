@@ -91,6 +91,13 @@ object PreferencesHelper {
         }
     }
 
+    fun remove(context: Context, key: String) {
+        android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+            .edit()
+            .remove(key)
+            .apply()
+    }
+
     /**
      * Encrypts a given string value using the KeyStoreHelper, then saves the result in
      * SharedPreferences.

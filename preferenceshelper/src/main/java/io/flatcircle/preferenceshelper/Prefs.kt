@@ -45,6 +45,10 @@ class Prefs(var context: Context?) {
         PreferencesHelper.set(context!!, key, value, T::class).commit()
     }
 
+    fun remove(key: String) {
+        PreferencesHelper.remove(context!!, key)
+    }
+
     /**
      * Encrypts a given string value using the KeyStoreHelper, then saves the result in
      * SharedPreferences.
